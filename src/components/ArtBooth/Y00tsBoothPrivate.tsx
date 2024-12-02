@@ -41,8 +41,8 @@ const ImageDisplay: React.FC = () => {
       const newY = moveEvent.clientY - (container?.top ?? 0) - offsetY;
 
       // Ensure buddy image stays within the container bounds
-      const updatedX = Math.max(0, Math.min(container?.width ?? 0 - 180, newX));
-      const updatedY = Math.max(0, Math.min(container?.height ?? 0 - 180, newY));
+      const updatedX = Math.max(0, Math.min(container?.width ?? 0 - 100, newX));
+      const updatedY = Math.max(0, Math.min(container?.height ?? 0 - 100, newY));
 
       setBuddyPosition({ x: updatedX, y: updatedY });
     };
@@ -57,7 +57,7 @@ const ImageDisplay: React.FC = () => {
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  // Function to download the combined image with scaling
+  // Function to download the combined image with 10x scale for better quality
   const handleDownload = () => {
     if (!canvasRef.current || !userImage || !containerRef.current) return;
 
@@ -78,60 +78,41 @@ const ImageDisplay: React.FC = () => {
     catImage.onload = () => {
       userUploadedImage.onload = () => {
         buddyImage.onload = () => {
-          // Set the canvas size to fit all images at original size (without scaling for download yet)
-          const containerWidth = containerRef.current.offsetWidth;
-          const containerHeight = containerRef.current.offsetHeight;
+          // Set the scaling factor (10x scale)
+          const scaleFactor = 10;
+
+          // Set canvas size to fit all images at original size (without scaling for download yet)
+          const containerWidth = containerRef.current?.offsetWidth ?? 0; // Use optional chaining and fallback to 0 if null
+          const containerHeight = containerRef.current?.offsetHeight ?? 0; // Use optional chaining and fallback to 0 if null
 
           // Set canvas size to container size
-          canvas.width = containerWidth;
-          canvas.height = containerHeight;
+          canvas.width = containerWidth * scaleFactor; // Scale canvas width by the scale factor
+          canvas.height = containerHeight * scaleFactor; // Scale canvas height by the scale factor
 
-          // Draw cat image on canvas (fit to container size)
-          context.drawImage(catImage, 0, 0, containerWidth, containerHeight);
+          // Draw cat image on canvas (fit to 10x scaled container size)
+          context.drawImage(catImage, 0, 0, containerWidth * scaleFactor, containerHeight * scaleFactor);
 
-          // Draw uploaded image on top of the cat image (fit to container size)
-          context.drawImage(userUploadedImage, 0, 0, containerWidth, containerHeight);
+          // Draw uploaded image on top of the cat image (fit to 10x scaled container size)
+          context.drawImage(userUploadedImage, 0, 0, containerWidth * scaleFactor, containerHeight * scaleFactor);
 
-          // Draw buddy image at the draggable position, set size to 180px for each dimension
-          const buddySize = 180; // Buddy image size
+          // Draw buddy image at the draggable position, scaled relative to the container size (180x180)
+          const buddyWidth = 180;
+          const buddyHeight = 180;
+          const scaleX = containerWidth / 400; // Assuming the container is 400px wide
+          const scaleY = containerHeight / 400; // Assuming the container is 400px high
+          const scaledBuddyWidth = buddyWidth * scaleX * scaleFactor;
+          const scaledBuddyHeight = buddyHeight * scaleY * scaleFactor;
 
-          // Draw the buddy image
           context.drawImage(
             buddyImage,
-            buddyPosition.x,
-            buddyPosition.y,
-            buddySize,
-            buddySize
+            buddyPosition.x * scaleX * scaleFactor, // Scale buddy position relative to container
+            buddyPosition.y * scaleY * scaleFactor, // Scale buddy position relative to container
+            scaledBuddyWidth,
+            scaledBuddyHeight
           );
 
-          // Download the combined image as PNG, but after scaling it for download
-          const scaleFactor = 10; // Scaling factor for higher resolution download
-
-          // Create a new scaled canvas for the download
-          const scaledCanvas = document.createElement('canvas');
-          const scaledContext = scaledCanvas.getContext('2d');
-          if (!scaledContext) return;
-
-          // Set scaled canvas size
-          scaledCanvas.width = containerWidth * scaleFactor;
-          scaledCanvas.height = containerHeight * scaleFactor;
-
-          // Scale the context for the scaled canvas
-          scaledContext.scale(scaleFactor, scaleFactor);
-
-          // Redraw the images on the scaled canvas
-          scaledContext.drawImage(catImage, 0, 0, containerWidth, containerHeight);
-          scaledContext.drawImage(userUploadedImage, 0, 0, containerWidth, containerHeight);
-          scaledContext.drawImage(
-            buddyImage,
-            buddyPosition.x,
-            buddyPosition.y,
-            buddySize,
-            buddySize
-          );
-
-          // Download the scaled image as PNG
-          const dataUrl = scaledCanvas.toDataURL('image/png');
+          // Download the combined image as PNG, but at a scaled-down resolution
+          const dataUrl = canvas.toDataURL('image/png');
           const link = document.createElement('a');
           link.href = dataUrl;
           link.download = 'combined_image.png'; // Image file name
