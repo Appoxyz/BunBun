@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+@font-face {
+  font-family: 'D5';
+  font-style: bold;
+  src: url('../styles/Fonts/D5.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'D3';
+  font-style: normal;
+  src: url('../styles/Fonts/D3.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'D2';
+  font-style: normal;
+  src: url('../styles/Fonts/D2.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'T2';
+  font-style: normal;
+  src: url('../styles/Fonts/T3.otf') format('opentype');
+}
+
+/* Custom text sizes with T3 font */
+.text-10xl {
+  font-size: 5.1rem;
+  font-family: 'D5', sans-serif;
+}
+
+.text-9xl {
+  font-size: 14rem;
+  font-family: 'D2', sans-serif;
+}
+
+.text-8xl {
+  font-size: 3rem;
+  font-family: 'D2', sans-serif;
+}
+
+.text-7xl {
+  font-size: 4.5rem;
+  font-family: 'T3', sans-serif;
+}
+
+.text-6xl {
+  font-size: 4rem;
+  font-family: 'T3', sans-serif;
+}
+
+.text-5xl {
+  font-size: 3rem;
+  font-family: 'T3', sans-serif;
+}
+
+.text-4xl {
+  font-size: 2.25rem;
+  font-family: 'T3', sans-serif;
+}
+
+.text-3xl {
+  font-size: 1.875rem;
+  font-family: 'T3', sans-serif;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  font-family: 'T3', sans-serif;
+}
+
+.text-xl {
+  font-size: 1.15rem;
+  font-family: 'T3', sans-serif;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  font-family: 'D3';
+}
+
+.text-base {
+  font-size: 1rem;
+  font-family: 'D5', sans-serif;
+}
+
+.text-sm {
+  font-size: 1.1rem;
+  font-family: 'D2', sans-serif;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  font-family: 'D2', sans-serif;
+}
+
+.text-xsm {
+  font-size: 0.62rem;
+  font-family: 'D2', sans-serif;
+}
