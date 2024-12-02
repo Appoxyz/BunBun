@@ -7,6 +7,7 @@ const ImageDisplay: React.FC = () => {
   const [dragging, setDragging] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buddyRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Handle user image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,8 +41,8 @@ const ImageDisplay: React.FC = () => {
       const newY = moveEvent.clientY - (container?.top ?? 0) - offsetY;
 
       // Ensure buddy image stays within the container bounds
-      const updatedX = Math.max(0, Math.min(container?.width ?? 0 - 100, newX));
-      const updatedY = Math.max(0, Math.min(container?.height ?? 0 - 100, newY));
+      const updatedX = Math.max(0, Math.min(container?.width ?? 0 - 180, newX));
+      const updatedY = Math.max(0, Math.min(container?.height ?? 0 - 180, newY));
 
       setBuddyPosition({ x: updatedX, y: updatedY });
     };
@@ -56,9 +57,9 @@ const ImageDisplay: React.FC = () => {
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  // Function to download the combined image
+  // Function to download the combined image with scaling
   const handleDownload = () => {
-    if (!canvasRef.current || !userImage) return;
+    if (!canvasRef.current || !userImage || !containerRef.current) return;
 
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
@@ -77,21 +78,60 @@ const ImageDisplay: React.FC = () => {
     catImage.onload = () => {
       userUploadedImage.onload = () => {
         buddyImage.onload = () => {
-          // Set canvas size to match the images' size
-          canvas.width = Math.max(catImage.width, userUploadedImage.width);
-          canvas.height = Math.max(catImage.height, userUploadedImage.height);
+          // Set the canvas size to fit all images at original size (without scaling for download yet)
+          const containerWidth = containerRef.current.offsetWidth;
+          const containerHeight = containerRef.current.offsetHeight;
 
-          // Draw cat image on canvas
-          context.drawImage(catImage, 0, 0);
+          // Set canvas size to container size
+          canvas.width = containerWidth;
+          canvas.height = containerHeight;
 
-          // Draw uploaded image on top of the cat image
-          context.drawImage(userUploadedImage, 0, 0);
+          // Draw cat image on canvas (fit to container size)
+          context.drawImage(catImage, 0, 0, containerWidth, containerHeight);
 
-          // Draw buddy image at the draggable position
-          context.drawImage(buddyImage, buddyPosition.x, buddyPosition.y, 100, 100);
+          // Draw uploaded image on top of the cat image (fit to container size)
+          context.drawImage(userUploadedImage, 0, 0, containerWidth, containerHeight);
 
-          // Download the combined image as PNG
-          const dataUrl = canvas.toDataURL('image/png');
+          // Draw buddy image at the draggable position, set size to 180px for each dimension
+          const buddySize = 180; // Buddy image size
+
+          // Draw the buddy image
+          context.drawImage(
+            buddyImage,
+            buddyPosition.x,
+            buddyPosition.y,
+            buddySize,
+            buddySize
+          );
+
+          // Download the combined image as PNG, but after scaling it for download
+          const scaleFactor = 10; // Scaling factor for higher resolution download
+
+          // Create a new scaled canvas for the download
+          const scaledCanvas = document.createElement('canvas');
+          const scaledContext = scaledCanvas.getContext('2d');
+          if (!scaledContext) return;
+
+          // Set scaled canvas size
+          scaledCanvas.width = containerWidth * scaleFactor;
+          scaledCanvas.height = containerHeight * scaleFactor;
+
+          // Scale the context for the scaled canvas
+          scaledContext.scale(scaleFactor, scaleFactor);
+
+          // Redraw the images on the scaled canvas
+          scaledContext.drawImage(catImage, 0, 0, containerWidth, containerHeight);
+          scaledContext.drawImage(userUploadedImage, 0, 0, containerWidth, containerHeight);
+          scaledContext.drawImage(
+            buddyImage,
+            buddyPosition.x,
+            buddyPosition.y,
+            buddySize,
+            buddySize
+          );
+
+          // Download the scaled image as PNG
+          const dataUrl = scaledCanvas.toDataURL('image/png');
           const link = document.createElement('a');
           link.href = dataUrl;
           link.download = 'combined_image.png'; // Image file name
@@ -106,7 +146,10 @@ const ImageDisplay: React.FC = () => {
       <h2>Upload Your Image</h2>
       <input type="file" accept="image/*" onChange={handleImageUpload} />
       
-      <div style={{ position: 'relative', width: '400px', height: '400px' }}>
+      <div
+        ref={containerRef}
+        style={{ position: 'relative', width: '400px', height: '400px', overflow: 'hidden' }}
+      >
         {/* Display the cat image using Next.js Image component */}
         <Image
           src="/y00trebuilder/eyewear/Nouns.png" // Fixed path for cat image
@@ -127,15 +170,15 @@ const ImageDisplay: React.FC = () => {
           />
         )}
 
-        {/* The Buddy image: 100x100 and draggable */}
+        {/* The Buddy image: 180x180 and draggable */}
         <div
           ref={buddyRef}
           style={{
             position: 'absolute',
             top: `${buddyPosition.y}px`,
             left: `${buddyPosition.x}px`,
-            width: '100px',
-            height: '100px',
+            width: '180px',
+            height: '180px',
             cursor: 'move',
             zIndex: 2
           }}
@@ -144,8 +187,8 @@ const ImageDisplay: React.FC = () => {
           <Image
             src="/y00trebuilder/12345.png" // Buddy image URL
             alt="Buddy"
-            width={100}
-            height={100}
+            width={180}
+            height={180}
           />
         </div>
       </div>
