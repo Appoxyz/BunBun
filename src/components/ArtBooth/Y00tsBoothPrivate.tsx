@@ -1,543 +1,163 @@
-import React, { useState, useRef, useEffect } from "react";
-import mergeImages from 'merge-images';
-import {
-    Furs,
-    Backgrounds,
-    Clothess,
-    Eyewears,
-    Faces,
-    Heads,
-    furImages,
-    backgroundImages,
-    headImages,
-    clothesImages,
-    eyewearImages,
-    faceImages,
-    headlowerlevelImages,
-    HeadsLowerLevel,
-    outfits,
-    outfits1,
-    outfits2,
-    outfits3,
-    outfits4,
-    outfits5,
-} from "@/components/ArtBooth/y00t_booth_constants";
+import React, { useState, useRef } from 'react';
+import Image from 'next/image';
 
-let y00tAttributes = {
-    head: "",
-    clothes: "",
-    face: "",
-    fur: "",
-    eyewear: "",
-    background: "",
-    headlowerlevel: "",
-};
-interface Attribute {
-    trait_type: string;
-    value: string
-}
+const ImageDisplay: React.FC = () => {
+  const [userImage, setUserImage] = useState<string | null>(null);
+  const [buddyPosition, setBuddyPosition] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const buddyRef = useRef<HTMLDivElement | null>(null);
 
-function Y00tsBoothPrivate() {
-    const [searchLink, setSearchLink] = useState("");
-    const [baseImageUrl, setBaseImageUrl] = useState(
-        "https://metadata.y00ts.com/y/8367.png"
-    );
-    const [visibleFace, setVisibleFace] = useState("");
-    const [visibleClothes, setVisibleClothes] = useState("SundayShirt");
-    const [visibleEyewear, setVisibleEyewear] = useState("RetroApple");
-    const [visibleFur, setVisibleFur] = useState("SandDollarBlase");
-    const [visibleBg, setVisibleBg] = useState("PhantomGreen");
-    const [visibleHead, setVisibleHead] = useState("MoneyBands");
-    const [visibleHeadLowerLevel, setVisibleHeadLowerLevel] = useState("");
-    const [isDownloadClicked, setIsDownloadClicked] = useState(false);
-    const baseImageStyle = {
-        position: "absolute",
-        top: "80px", // Set the initial top position of the base image here
-    };
-    const [selectedOutfitClothing, setSelectedOutfitClothing] = useState("");
-    const [ActiveOutfitClothing, setActiveOutfitClothing] = useState("");
-    const [selectedOutfitHead, setSelectedOutfitHead] = useState("");
-    const [ActiveOutfitHead, setActiveOutfitHead] = useState("");
-    const [selectedOutfitEyewear, setSelectedOutfitEyewear] = useState("");
-    const [ActiveOutfitEyewear, setActiveOutfitEyewear] = useState("");
-    const [selectedOutfitBG, setSelectedOutfitBG] = useState("");
-    const [ActiveOutfitBG, setActiveOutfitBG] = useState("");
-    const [selectedOutfitFur, setSelectedOutfitFur] = useState("");
-    const [ActiveOutfitFur, setActiveOutfitFur] = useState("");
-    const [selectedOutfitBackwear, setSelectedOutfitBackwear] = useState("");
-    const [ActiveOutfitBackwear, setActiveOutfitBackwear] = useState("");
-    const [isHatRemoved, setIsHatRemoved] = useState(false);
-    const [isClothesRemoved, setIsClothesRemoved] = useState(false);
-    const [isBackgroundRemoved, setIsBGRemoved] = useState(false);
-    const [isEyewearRemoved, setIsEyewearRemoved] = useState(false);
+  // Handle user image upload
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
 
-
-
-    const leftSectionRef = useRef(null);
-
-    const baseImageSize = "470px";
-
-
-
-
-    const ToggleRemoveHat = () => {
-        setIsHatRemoved(!isHatRemoved);
-        setVisibleHead(prevState => {
-            // Get the new head from y00tAttributes
-            const newHead = Heads[y00tAttributes.head as keyof typeof Heads];
-            // Check if the current state is "None", if so, set to newHead, otherwise set to "None"
-            return prevState === Heads["None"] ? newHead : Heads["None"];
-        });
-
-        setVisibleHeadLowerLevel(prevState => {
-            // Get the new head from y00tAttributes
-            const newLowerHead = HeadsLowerLevel[y00tAttributes.headlowerlevel as keyof typeof HeadsLowerLevel];
-            // Check if the current state is "None", if so, set to newHead, otherwise set to "None"
-            return prevState === HeadsLowerLevel["None"] ? newLowerHead : HeadsLowerLevel["None"];
-        });
-
-    };
-
-    const ToggleRemoveClothes = () => {
-        setIsClothesRemoved(!isClothesRemoved);
-        setVisibleClothes(prevState => {
-            // Get the new head from y00tAttributes
-            const newClothes = Clothess[y00tAttributes.clothes as keyof typeof Clothess];
-            // Check if the current state is "None", if so, set to newHead, otherwise set to "None"
-            return prevState === Clothess["None"] ? newClothes : Clothess["None"];
-        });
-    };
-
-    const ToggleRemoveEyewear = () => {
-        setIsEyewearRemoved(!isEyewearRemoved);
-        setVisibleEyewear(prevState => {
-            // Get the new head from y00tAttributes
-            const newEyewear = Eyewears[y00tAttributes.eyewear as keyof typeof Eyewears];
-            // Check if the current state is "None", if so, set to newHead, otherwise set to "None"
-            return prevState === Eyewears["None"] ? newEyewear : Eyewears["None"];
-        });
-    };
-
-    const ToggleRemoveBG = () => {
-        setIsBGRemoved(!isBackgroundRemoved);
-        setVisibleBg(prevState => {
-            // Get the new head from y00tAttributes
-            const newBackground = Backgrounds[y00tAttributes.background as keyof typeof Backgrounds];
-            // Check if the current state is "None", if so, set to newHead, otherwise set to "None"
-            return prevState === Backgrounds["None"] ? newBackground : Backgrounds["None"];
-        });
-        setBaseImageUrl(`https://ljoskdi63hqlxxuy.public.blob.vercel-storage.com/face/Blase-UmHLodB0hRNPGhlN5P4m1CXPiIjEAN.png`);
-    };
-
-
-    const getY00tAttributes = async (id: number) => {
-        const newID = id - 1; // Subtract 1 from the entered value
-        try {
-            const response = await fetch(`https://metadata.y00ts.com/y/${newID}.json`);
-            const data = await response.json();
-            const attributes: Attribute[] = data.attributes || [];
-            const attributesFound: any = {};
-            attributes.forEach((attribute: Attribute) => {
-                attributesFound[attribute.trait_type] = attribute.value;
-            });
-            // Save attributes globally
-            const y00tAttributes = {
-                background: attributesFound["Background"] || "",
-                fur: attributesFound["Fur"] || "",
-                head: attributesFound["Head"] || "",
-                headlowerlevel: attributesFound["Head"] || "",
-                face: attributesFound["Face"] || "",
-                clothes: attributesFound["Clothes"] || "",
-                eyewear: attributesFound["Eyewear"] || "",
-            };
-
-            return y00tAttributes;
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            return { background: "", fur: "", head: "", headlowerlevel: "", face: "", eyewear: "", clothes: "" };
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setUserImage(reader.result);
         }
-    };
+      };
 
-    const handleSearchSubmit = async () => {
-        const link = parseInt(searchLink);
-
-        if (!isNaN(link)) {
-            const adjustedLink = link - 1; // Subtract 1 from the entered value
-            // if (allowedIDS.includes(link)) { - allowedy00tIDS
-            y00tAttributes = await getY00tAttributes(link);
-
-            setVisibleBg(Backgrounds[y00tAttributes.background as keyof typeof Backgrounds]);
-            setVisibleHead(Heads[y00tAttributes.head as keyof typeof Heads]);
-            setVisibleHeadLowerLevel(HeadsLowerLevel[y00tAttributes.headlowerlevel as keyof typeof HeadsLowerLevel]);
-            setVisibleFace(Faces[y00tAttributes.face as keyof typeof Faces]);
-            setVisibleEyewear(Eyewears[y00tAttributes.eyewear as keyof typeof Eyewears]);
-            //  setVisibleClothes(Clothess[y00tAttributes.clothes as keyof typeof Clothess]);
-            setVisibleClothes(Clothess["AssetDash"]);
-
-
-            setBaseImageUrl(`https://metadata.y00ts.com/y/${adjustedLink}.png`);
-            setVisibleFur(Furs[`${y00tAttributes.fur} ${y00tAttributes.face}`]);
-
-            setSelectedOutfitClothing("");
-            setSelectedOutfitHead("");
-            setTimeout(() => {
-            }, 1000);
-        } else {
-            setBaseImageUrl("https://metadata.y00ts.com/y/8367.png");
-            setVisibleBg(Backgrounds["None"]);
-            setVisibleFur(Furs["None"]);
-            setVisibleHead(Heads["None"]);
-            setVisibleHeadLowerLevel(HeadsLowerLevel["None"]);
-            setVisibleFace(Faces["None"]);
-            setVisibleEyewear(Eyewears["None"]);
-            setVisibleClothes(Clothess["None"]);
-        }
-    };
-
-
-
-    const handleDownloadClick = async () => {
-        try {
-            setIsDownloadClicked(true); // Set download button clicked state to true
-
-            // Array to hold only active layers for merging
-            const activeLayers = [
-                backgroundImages[visibleBg as keyof typeof backgroundImages],
-                selectedOutfitBG,
-                selectedOutfitBackwear,
-                furImages[visibleFur as keyof typeof furImages],
-                selectedOutfitFur,
-                headlowerlevelImages[visibleHeadLowerLevel as keyof typeof headlowerlevelImages],
-                eyewearImages[visibleEyewear as keyof typeof eyewearImages],
-                selectedOutfitEyewear,
-                headImages[visibleHead as keyof typeof headImages],
-                clothesImages[visibleClothes as keyof typeof clothesImages],
-                selectedOutfitClothing,
-                selectedOutfitHead,
-            ].filter(layer => layer !== ""); // Filter out empty layers
-
-            // If there are no active layers, return without downloading
-            if (activeLayers.length === 0) {
-                setIsDownloadClicked(false); // Set download button clicked state to false
-                return;
-            }
-
-            let mergedImage = await mergeImages(activeLayers, {
-                crossOrigin: "anonymous" // Make sure crossOrigin property is set correctly
-            });
-
-            // Adding a 2-second timeout before setting IsDownloadClicked to false
-            setTimeout(() => {
-                setIsDownloadClicked(false); // Set download button clicked state to false after 2 seconds
-            }, 500);
-
-            mergedImage = mergedImage.replace(/^data:image\/png;base64,/, "");
-            const byteCharacters = atob(mergedImage);
-            const byteArrays = [];
-
-            for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-                const slice = byteCharacters.slice(offset, offset + 1024);
-
-                const byteNumbers = new Array(slice.length);
-                for (let i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
-                }
-
-                const byteArray = new Uint8Array(byteNumbers);
-                byteArrays.push(byteArray);
-            }
-
-            const blob = new Blob(byteArrays, { type: 'image/png' });
-            var link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `y7Studio.png`;
-            link.click();
-        } catch (ex) {
-            console.log(ex);
-            setIsDownloadClicked(false); // Set download button clicked state back to false
-        }
+      reader.readAsDataURL(file);
     }
+  };
 
+  // Start dragging
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setDragging(true);
 
-    return (
-        <>
-            <div className="w-full sm:pt-20">
-                <div className="flex flex-col sm:flex-row justify-center items-center justify-evenly mx-6">
-                    <section
-                        ref={leftSectionRef}
-                        className="mt-10 rounded-lg justify-center"
-                        id="downloadable"
-                        style={{
-                            position: "relative",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "left",
-                                marginBottom: "20px",
-                            }}
-                        >
-                            {/* Input Buttons */}
-                            <div className="w-baseImageSize flex sm:justify-center z-9 pb-2">
-                                <input
-                                    type="number"
-                                    placeholder="Enter y00ts ID"
-                                    value={searchLink}
-                                    className="w-full rounded-lg pl-4 pr-2 focus:outline-none bg-white"
-                                    style={{
-                                        fontFamily: 'T2',
-                                        fontWeight: 'bold',
-                                        fontSize: "16px",
-                                        backgroundColor: 'rgba(225, 225, 225, 0.27)',
-                                        border: "2px solid rgba(0, 0, 0)",
-                                        marginRight: "5px",
-                                    }}
-                                    onChange={(e) => setSearchLink(e.target.value)}
-                                />
-                                <button
-                                    className="text-base text-white h-11 w-60 rounded-lg bg-gradient-to-tl from-green-dark to-green-light"
-                                    style={{ marginLeft: "5px" }}
-                                    onClick={handleSearchSubmit}
-                                >
-                                    Submit
-                                </button>
-                            </div>
-                        </div>
-                        <img
-                            src={baseImageUrl}
-                            alt="Base Image"
-                            style={{
-                                width: "470px",
-                                height: "auto",
-                                border: "2px solid rgba(0, 0, 0)",
-                                borderRadius: "20px",
-                                marginTop: "28px",
-                            }}
-                        />
-                        {backgroundImages[visibleBg as keyof typeof backgroundImages] && (
-                            <img
-                                src={backgroundImages[visibleBg as keyof typeof backgroundImages]}
-                                alt={`${visibleBg} Overlay`}
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {selectedOutfitBG && (
-                            <img
-                                src={selectedOutfitBG}
-                                alt="Selected Outfit Background"
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {furImages[visibleFur as keyof typeof furImages] && (
-                            <img
-                                src={furImages[visibleFur as keyof typeof furImages]}
-                                alt={`${visibleFur} Overlay`}
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {faceImages[visibleFace as keyof typeof faceImages] && (
-                            <img
-                                src={faceImages[visibleFace as keyof typeof faceImages]}
-                                alt={`${visibleFace} Overlay`}
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {clothesImages[visibleClothes as keyof typeof clothesImages] && (
-                            <img
-                                src={clothesImages[visibleClothes as keyof typeof clothesImages]}
-                                alt={`${visibleClothes} Overlay`}
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {headlowerlevelImages[visibleHeadLowerLevel as keyof typeof headlowerlevelImages] && (
-                            <img
-                                src={headlowerlevelImages[visibleHeadLowerLevel as keyof typeof headlowerlevelImages]}
-                                alt={`${visibleHeadLowerLevel} Overlay`}
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {eyewearImages[visibleEyewear as keyof typeof eyewearImages] && (
-                            <img
-                                src={eyewearImages[visibleEyewear as keyof typeof eyewearImages]}
-                                alt={`${visibleEyewear} Overlay`}
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {headImages[visibleHead as keyof typeof headImages] && (
-                            <img
-                                src={headImages[visibleHead as keyof typeof headImages]}
-                                alt={`${visibleHead} Overlay`}
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {selectedOutfitFur && (
-                            <img
-                                src={selectedOutfitFur}
-                                alt="Selected Outfit Fur"
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        {selectedOutfitHead && (
-                            <img
-                                src={selectedOutfitHead}
-                                alt="Selected Outfit Head"
-                                style={{
-                                    position: "absolute",
-                                    top: baseImageStyle.top,
-                                    width: baseImageSize,
-                                    height: "auto",
-                                    borderRadius: "20px",
-                                }}
-                            />
-                        )}
-                        <div
-                            className="w-full flex my-5"
-                            style={{
-                                position: 'absolute',
-                                top: '20px',
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                display: 'flex',
-                                justifyContent: 'space-around',
-                                width: '100%',
-                            }}
-                        >
-                            {[
-                                { toggle: ToggleRemoveHat, label: isHatRemoved ? 'Add Hat' : 'Remove Hat' },
-                                { toggle: ToggleRemoveClothes, label: isClothesRemoved ? 'Add Clothes' : 'Remove Clothes' },
-                                { toggle: ToggleRemoveEyewear, label: isEyewearRemoved ? 'Add Eyewear' : 'Remove Eyewear' },
-                                { toggle: ToggleRemoveBG, label: isBackgroundRemoved ? 'Add BG' : 'Remove BG' },
-                            ].map(({ toggle, label }, index) => (
-                                <button
-                                    key={index}
-                                    className="text-xsm text-slate h-11 w-32 rounded-lg"
-                                    onClick={toggle}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="w-full flex my-5">
-                            <div className="w-full">
-                                <button
-                                    className="flex justify-center items-center rounded-lg w-full h-12 relative overflow-hidden bg-gradient-to-br from-slate-dark to-slate-light text-white font-bold text-16px"
-                                    style={{ position: 'relative' }}
-                                    onClick={handleDownloadClick}
-                                >
-                                    <div className="flex gap-1.5" style={{ zIndex: 2 }}>
-                                        <img
-                                            src="https://cdn.builder.io/api/v1/image/assets/TEMP/68d0396bacfe4888fe13fd9395f930b65ceb447ba22b5358451a5ccb4eddcfcc?"
-                                            alt="Download icon"
-                                            className={`aspect-square w-23px ${isDownloadClicked ? 'scaled' : 'noscaled'}`}
-                                            loading="lazy"
-                                        />
-                                        <div
-                                            className={`grow my-auto ${isDownloadClicked ? 'hide' : 'nohide'} text-lg`}
-                                            style={{ zIndex: 2 }}
-                                        >
-                                            DOWNLOAD
-                                        </div>
-                                    </div>
-                                    <div className="hover-circle" />
-                                </button>
-                            </div>
-                        </div>
-                        <style jsx>{`
-                            .hover-circle {
-                                position: absolute;
-                                background-color: #0ea5e9;
-                                border-radius: 100%;
-                                width: 100%;
-                                height: 200%;
-                                top: 100%;
-                                left: 50%;
-                                transform: translate(-50%, -50%) scale(0);
-                                transition: transform 0.4s ease-out;
-                                z-index: 0;
-                            }
-                            button:hover .hover-circle {
-                                transform: translate(-50%, -50%) scale(1.6);
-                            }
-                            .hide {
-                                opacity: 0;
-                                transform: translate(100%, 0%) scale(1);
-                                transition: opacity 0.2s ease-in, transform 0.2s ease-in;
-                            }
-                            .nohide {
-                                opacity: 1;
-                                transition: opacity 0.2s ease-in, transform 0.2s ease-in;
-                            }
-                            .scaled {
-                                transform: scale(1.3) translate(180%, 0%);
-                                transition: transform 0.3s ease;
-                            }
-                            .noscaled {
-                                transform: scale(1);
-                                transition: transform 0.5s ease;
-                            }
-                        `}</style>
-                    </section>
-                </div>
-            </div>
-        </>
-    );
+    // Track initial position when drag starts
+    const container = buddyRef.current?.parentElement?.getBoundingClientRect();
+    const offsetX = e.clientX - (container?.left ?? 0) - buddyPosition.x;
+    const offsetY = e.clientY - (container?.top ?? 0) - buddyPosition.y;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!dragging) return;
+
+      const newX = moveEvent.clientX - (container?.left ?? 0) - offsetX;
+      const newY = moveEvent.clientY - (container?.top ?? 0) - offsetY;
+
+      // Ensure buddy image stays within the container bounds
+      const updatedX = Math.max(0, Math.min(container?.width ?? 0 - 100, newX));
+      const updatedY = Math.max(0, Math.min(container?.height ?? 0 - 100, newY));
+
+      setBuddyPosition({ x: updatedX, y: updatedY });
+    };
+
+    const handleMouseUp = () => {
+      setDragging(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Function to download the combined image
+  const handleDownload = () => {
+    if (!canvasRef.current || !userImage) return;
+
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    // Use the native HTML Image constructor
+    const catImage = new window.Image(); // Using native window.Image constructor
+    const userUploadedImage = new window.Image(); // Using native window.Image constructor
+    const buddyImage = new window.Image(); // Buddy image for overlay
+
+    catImage.src = '/y00trebuilder/eyewear/Nouns.png'; // Cat image URL
+    userUploadedImage.src = userImage;
+    buddyImage.src = '/y00trebuilder/12345.png'; // Buddy image URL
+
+    // Draw images onto the canvas when all images are loaded
+    catImage.onload = () => {
+      userUploadedImage.onload = () => {
+        buddyImage.onload = () => {
+          // Set canvas size to match the images' size
+          canvas.width = Math.max(catImage.width, userUploadedImage.width);
+          canvas.height = Math.max(catImage.height, userUploadedImage.height);
+
+          // Draw cat image on canvas
+          context.drawImage(catImage, 0, 0);
+
+          // Draw uploaded image on top of the cat image
+          context.drawImage(userUploadedImage, 0, 0);
+
+          // Draw buddy image at the draggable position
+          context.drawImage(buddyImage, buddyPosition.x, buddyPosition.y, 100, 100);
+
+          // Download the combined image as PNG
+          const dataUrl = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = 'combined_image.png'; // Image file name
+          link.click();
+        };
+      };
+    };
+  };
+
+  return (
+    <div>
+      <h2>Upload Your Image</h2>
+      <input type="file" accept="image/*" onChange={handleImageUpload} />
+      
+      <div style={{ position: 'relative', width: '400px', height: '400px' }}>
+        {/* Display the cat image using Next.js Image component */}
+        <Image
+          src="/y00trebuilder/eyewear/Nouns.png" // Fixed path for cat image
+          alt="Cat"
+          layout="fill" // Make the cat image fill the container
+          objectFit="cover" // Ensures the cat image covers the entire container
+          priority // Optional: Use priority to load this image sooner
+        />
+
+        {/* Overlay the uploaded image on top of the cat image */}
+        {userImage && (
+          <Image
+            src={userImage}
+            alt="Uploaded"
+            layout="fill" // Make the uploaded image fill the container
+            objectFit="contain" // Ensure the uploaded image fits within the container
+            style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+          />
+        )}
+
+        {/* The Buddy image: 100x100 and draggable */}
+        <div
+          ref={buddyRef}
+          style={{
+            position: 'absolute',
+            top: `${buddyPosition.y}px`,
+            left: `${buddyPosition.x}px`,
+            width: '100px',
+            height: '100px',
+            cursor: 'move',
+            zIndex: 2
+          }}
+          onMouseDown={handleMouseDown} // Start dragging
+        >
+          <Image
+            src="/y00trebuilder/12345.png" // Buddy image URL
+            alt="Buddy"
+            width={100}
+            height={100}
+          />
+        </div>
+      </div>
+
+      <button onClick={handleDownload} style={{ marginTop: '20px' }}>
+        Download Combined Image
+      </button>
+
+      {/* Canvas element to render the images */}
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+    </div>
+  );
 };
 
-export default Y00tsBoothPrivate;
+export default ImageDisplay;

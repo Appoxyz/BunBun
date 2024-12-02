@@ -1,13 +1,10 @@
-import Image from "next/image";
-import Y00tsBoothPrivate from "@/components/ArtBooth/Y00tsBoothPrivate";
-import ArtistDropdown from "@/components/ArtistDropdown";
-import NavBar from '@/components/Site/Navnew';
-import { SetStateAction, useState } from "react";
+import ImageDisplay from "@/components/ArtBooth/Y00tsBoothPrivate";
 
 export default function Home() {
     return (
         <main className="flex min-h-screen w-full flex-col items-center justify-center non-scrollable">
-            <Y00tsBoothPrivate />
+            <h1>Image Display Example</h1>
+            <ImageDisplay />
 
             <style jsx>{`
                 .selected {
