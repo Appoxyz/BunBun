@@ -4,12 +4,12 @@ import Image from 'next/image';
 const ImageDisplay: React.FC = () => {
   const [userImage, setUserImage] = useState<string | null>(null);
   const [buddyPosition, setBuddyPosition] = useState({ x: 0, y: 0 });
+  const [buddySize, setBuddySize] = useState({ width: 180, height: 180 }); // Add size state
   const [dragging, setDragging] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buddyRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Handle user image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
@@ -25,11 +25,9 @@ const ImageDisplay: React.FC = () => {
     }
   };
 
-  // Start dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     setDragging(true);
 
-    // Track initial position when drag starts
     const container = buddyRef.current?.parentElement?.getBoundingClientRect();
     const offsetX = e.clientX - (container?.left ?? 0) - buddyPosition.x;
     const offsetY = e.clientY - (container?.top ?? 0) - buddyPosition.y;
@@ -40,9 +38,8 @@ const ImageDisplay: React.FC = () => {
       const newX = moveEvent.clientX - (container?.left ?? 0) - offsetX;
       const newY = moveEvent.clientY - (container?.top ?? 0) - offsetY;
 
-      // Ensure buddy image stays within the container bounds
-      const updatedX = Math.max(0, Math.min(container?.width ?? 0 - 100, newX));
-      const updatedY = Math.max(0, Math.min(container?.height ?? 0 - 100, newY));
+      const updatedX = Math.max(0, Math.min(container?.width ?? 0 - buddySize.width, newX));
+      const updatedY = Math.max(0, Math.min(container?.height ?? 0 - buddySize.height, newY));
 
       setBuddyPosition({ x: updatedX, y: updatedY });
     };
@@ -57,7 +54,28 @@ const ImageDisplay: React.FC = () => {
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  // Function to download the combined image with 10x scale for better quality
+  const handleSizeChange = (increment: boolean) => {
+    setBuddySize((prevSize) => {
+      const newSize = {
+        width: Math.max(50, prevSize.width + (increment ? 10 : -10)),
+        height: Math.max(50, prevSize.height + (increment ? 10 : -10)),
+      };
+      return newSize;
+    });
+  };
+
+  const handleMove = (direction: string) => {
+    setBuddyPosition((prevPosition) => {
+      const step = 10;
+      const newPosition = { ...prevPosition };
+      if (direction === 'up') newPosition.y = Math.max(0, prevPosition.y - step);
+      if (direction === 'down') newPosition.y = Math.min((containerRef.current?.offsetHeight ?? 0) - buddySize.height, prevPosition.y + step);
+      if (direction === 'left') newPosition.x = Math.max(0, prevPosition.x - step);
+      if (direction === 'right') newPosition.x = Math.min((containerRef.current?.offsetWidth ?? 0) - buddySize.width, prevPosition.x + step);
+      return newPosition;
+    });
+  };
+
   const handleDownload = () => {
     if (!canvasRef.current || !userImage || !containerRef.current) return;
 
@@ -65,57 +83,42 @@ const ImageDisplay: React.FC = () => {
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    // Use the native HTML Image constructor
-    const catImage = new window.Image(); // Using native window.Image constructor
-    const userUploadedImage = new window.Image(); // Using native window.Image constructor
-    const buddyImage = new window.Image(); // Buddy image for overlay
+    const catImage = new window.Image();
+    const userUploadedImage = new window.Image();
+    const buddyImage = new window.Image();
 
-    catImage.src = '/y00trebuilder/eyewear/Nouns.png'; // Cat image URL
+    catImage.src = '/y00trebuilder/bg.png';
     userUploadedImage.src = userImage;
-    buddyImage.src = '/y00trebuilder/12345.png'; // Buddy image URL
+    buddyImage.src = '/y00trebuilder/12345.png';
 
-    // Draw images onto the canvas when all images are loaded
     catImage.onload = () => {
       userUploadedImage.onload = () => {
         buddyImage.onload = () => {
-          // Set the scaling factor (10x scale)
-          const scaleFactor = 10;
+          const scaleFactor = 5;
+          const containerWidth = containerRef.current?.offsetWidth ?? 0;
+          const containerHeight = containerRef.current?.offsetHeight ?? 0;
 
-          // Set canvas size to fit all images at original size (without scaling for download yet)
-          const containerWidth = containerRef.current?.offsetWidth ?? 0; // Use optional chaining and fallback to 0 if null
-          const containerHeight = containerRef.current?.offsetHeight ?? 0; // Use optional chaining and fallback to 0 if null
+          canvas.width = containerWidth * scaleFactor;
+          canvas.height = containerHeight * scaleFactor;
 
-          // Set canvas size to container size
-          canvas.width = containerWidth * scaleFactor; // Scale canvas width by the scale factor
-          canvas.height = containerHeight * scaleFactor; // Scale canvas height by the scale factor
+          context.drawImage(catImage, 0, 0, canvas.width, canvas.height);
+          context.drawImage(userUploadedImage, 0, 0, canvas.width, canvas.height);
 
-          // Draw cat image on canvas (fit to 10x scaled container size)
-          context.drawImage(catImage, 0, 0, containerWidth * scaleFactor, containerHeight * scaleFactor);
-
-          // Draw uploaded image on top of the cat image (fit to 10x scaled container size)
-          context.drawImage(userUploadedImage, 0, 0, containerWidth * scaleFactor, containerHeight * scaleFactor);
-
-          // Draw buddy image at the draggable position, scaled relative to the container size (180x180)
-          const buddyWidth = 180;
-          const buddyHeight = 180;
-          const scaleX = containerWidth / 400; // Assuming the container is 400px wide
-          const scaleY = containerHeight / 400; // Assuming the container is 400px high
-          const scaledBuddyWidth = buddyWidth * scaleX * scaleFactor;
-          const scaledBuddyHeight = buddyHeight * scaleY * scaleFactor;
+          const scaledBuddyWidth = buddySize.width * scaleFactor;
+          const scaledBuddyHeight = buddySize.height * scaleFactor;
 
           context.drawImage(
             buddyImage,
-            buddyPosition.x * scaleX * scaleFactor, // Scale buddy position relative to container
-            buddyPosition.y * scaleY * scaleFactor, // Scale buddy position relative to container
+            buddyPosition.x * scaleFactor,
+            buddyPosition.y * scaleFactor,
             scaledBuddyWidth,
-            scaledBuddyHeight
+            scaledBuddyHeight,
           );
 
-          // Download the combined image as PNG, but at a scaled-down resolution
           const dataUrl = canvas.toDataURL('image/png');
           const link = document.createElement('a');
           link.href = dataUrl;
-          link.download = 'combined_image.png'; // Image file name
+          link.download = 'combined_image.png';
           link.click();
         };
       };
@@ -131,54 +134,38 @@ const ImageDisplay: React.FC = () => {
         ref={containerRef}
         style={{ position: 'relative', width: '400px', height: '400px', overflow: 'hidden' }}
       >
-        {/* Display the cat image using Next.js Image component */}
-        <Image
-          src="/y00trebuilder/eyewear/Nouns.png" // Fixed path for cat image
-          alt="Cat"
-          layout="fill" // Make the cat image fill the container
-          objectFit="cover" // Ensures the cat image covers the entire container
-          priority // Optional: Use priority to load this image sooner
-        />
-
-        {/* Overlay the uploaded image on top of the cat image */}
-        {userImage && (
-          <Image
-            src={userImage}
-            alt="Uploaded"
-            layout="fill" // Make the uploaded image fill the container
-            objectFit="contain" // Ensure the uploaded image fits within the container
-            style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
-          />
-        )}
-
-        {/* The Buddy image: 180x180 and draggable */}
+        <Image src="/y00trebuilder/bg.png" alt="Cat" layout="fill" objectFit="cover" priority />
+        {userImage && <Image src={userImage} alt="Uploaded" layout="fill" objectFit="contain" style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} />}
         <div
           ref={buddyRef}
           style={{
             position: 'absolute',
             top: `${buddyPosition.y}px`,
             left: `${buddyPosition.x}px`,
-            width: '180px',
-            height: '180px',
+            width: `${buddySize.width}px`,
+            height: `${buddySize.height}px`,
             cursor: 'move',
-            zIndex: 2
+            zIndex: 2,
           }}
-          onMouseDown={handleMouseDown} // Start dragging
+          onMouseDown={handleMouseDown}
         >
-          <Image
-            src="/y00trebuilder/12345.png" // Buddy image URL
-            alt="Buddy"
-            width={180}
-            height={180}
-          />
+          <Image src="/y00trebuilder/12345.png" alt="Buddy" width={buddySize.width} height={buddySize.height} />
         </div>
+      </div>
+
+      <div style={{ marginTop: '10px' }}>
+        <button onClick={() => handleMove('up')}>Up</button>
+        <button onClick={() => handleMove('down')}>Down</button>
+        <button onClick={() => handleMove('left')}>Left</button>
+        <button onClick={() => handleMove('right')}>Right</button>
+        <button onClick={() => handleSizeChange(true)}>Bigger</button>
+        <button onClick={() => handleSizeChange(false)}>Smaller</button>
       </div>
 
       <button onClick={handleDownload} style={{ marginTop: '20px' }}>
         Download Combined Image
       </button>
 
-      {/* Canvas element to render the images */}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   );
