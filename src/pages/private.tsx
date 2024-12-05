@@ -29,11 +29,14 @@ export default function Home() {
                 .non-scrollable {
                     overflow: hidden;
                     height: 100vh; /* Ensure it takes full viewport height */
+                    background-color: #FFB5BA; /* Set the background color */
                 }
                 html, body {
                     height: 100%;
                     margin: 0;
                     overflow: hidden; /* Disable scrolling on the whole page */
+                    background-color: #FFB5BA; /* Ensure the background color applies to the entire page */
+                    //read colour is. BFAEAF
                 }
             `}</style>
         </main>

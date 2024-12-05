@@ -1,18 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight, FaPlus, FaMinus } from 'react-icons/fa'; // Importing react-icons
+import { FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight, FaPlus, FaMinus } from 'react-icons/fa';
 
 const ImageDisplay: React.FC = () => {
   const [userImage, setUserImage] = useState<string | null>(null);
   const [buddyPosition, setBuddyPosition] = useState({ x: 0, y: 0 });
   const [buddySize, setBuddySize] = useState({ width: 180, height: 180 });
   const [dragging, setDragging] = useState(false);
-  const [buddyImageSrc, setBuddyImageSrc] = useState('/y00trebuilder/123456.png');
+  const [buddyImageSrc, setBuddyImageSrc] = useState('/y00trebuilder/1.png');
+  const [selectedBuddyImage, setSelectedBuddyImage] = useState(0);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buddyRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-
-  
 
   const buddyImages = [
     '/y00trebuilder/1.png',
@@ -23,17 +23,21 @@ const ImageDisplay: React.FC = () => {
     '/y00trebuilder/6.png',
   ];
 
+  const handleBuddyImageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedIndex = parseInt(event.target.value);
+    setSelectedBuddyImage(selectedIndex);
+    setBuddyImageSrc(buddyImages[selectedIndex]);
+  };
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       const reader = new FileReader();
-
       reader.onload = () => {
         if (typeof reader.result === 'string') {
           setUserImage(reader.result);
         }
       };
-
       reader.readAsDataURL(file);
     }
   };
@@ -90,86 +94,57 @@ const ImageDisplay: React.FC = () => {
   };
 
   const handleDownload = async () => {
-    if (!canvasRef.current || !userImage || !containerRef.current) return;
-  
+    if (!canvasRef.current || !userImage || !containerRef.current) {
+      console.error('Canvas or container reference missing');
+      return;
+    }
+
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     if (!context) return;
-  
-    // Create image objects using the standard HTMLImageElement constructor
+
     const catImage = new window.Image();
     const userUploadedImage = new window.Image();
     const buddyImage = new window.Image();
-  
-    // Set the image sources
+
     catImage.src = '/y00trebuilder/bg.png';
     userUploadedImage.src = userImage;
     buddyImage.src = buddyImageSrc;
-  
-    // Wait until all images are loaded before drawing on the canvas
-    const loadImages = () => {
-      return new Promise<void>((resolve, reject) => {
-        let loadedCount = 0;
-        const totalImages = 3;
-  
-        const onLoad = () => {
-          loadedCount++;
-          if (loadedCount === totalImages) {
-            resolve();
-          }
-        };
-  
-        catImage.onload = onLoad;
-        userUploadedImage.onload = onLoad;
-        buddyImage.onload = onLoad;
-  
-        // Handle image loading errors
-        catImage.onerror = reject;
-        userUploadedImage.onerror = reject;
-        buddyImage.onerror = reject;
-      });
-    };
-  
-    try {
-      await loadImages();
-  
-      const scaleFactor = 5;
-      const containerWidth = containerRef.current?.offsetWidth ?? 0;
-      const containerHeight = containerRef.current?.offsetHeight ?? 0;
-  
-      canvas.width = containerWidth * scaleFactor;
-      canvas.height = containerHeight * scaleFactor;
-  
-      // Draw the background image
-      context.drawImage(catImage, 0, 0, canvas.width, canvas.height);
-      context.drawImage(userUploadedImage, 0, 0, canvas.width, canvas.height);
-  
-      // Calculate buddy image scale
-      const buddyAspectRatio = buddyImage.width / buddyImage.height;
-      const scaledBuddyWidth = buddySize.width * scaleFactor;
-      const scaledBuddyHeight = scaledBuddyWidth / buddyAspectRatio;
-  
-      // Draw the buddy image while maintaining the aspect ratio
-      context.drawImage(
-        buddyImage,
-        buddyPosition.x * scaleFactor,
-        buddyPosition.y * scaleFactor,
-        scaledBuddyWidth,
-        scaledBuddyHeight
-      );
-  
-      // Generate the data URL and trigger the download
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = 'combined_image.png';
-      link.click();
-    } catch (error) {
-      console.error('Error loading images:', error);
-    }
+
+    await Promise.all([
+      new Promise((resolve) => (catImage.onload = resolve)),
+      new Promise((resolve) => (userUploadedImage.onload = resolve)),
+      new Promise((resolve) => (buddyImage.onload = resolve)),
+    ]);
+
+    const scaleFactor = 5;
+    const containerWidth = containerRef.current.offsetWidth;
+    const containerHeight = containerRef.current.offsetHeight;
+
+    canvas.width = containerWidth * scaleFactor;
+    canvas.height = containerHeight * scaleFactor;
+
+    context.drawImage(catImage, 0, 0, canvas.width, canvas.height);
+    context.drawImage(userUploadedImage, 0, 0, canvas.width, canvas.height);
+
+    const buddyAspectRatio = buddyImage.width / buddyImage.height;
+    const scaledBuddyWidth = buddySize.width * scaleFactor;
+    const scaledBuddyHeight = scaledBuddyWidth / buddyAspectRatio;
+
+    context.drawImage(
+      buddyImage,
+      buddyPosition.x * scaleFactor,
+      buddyPosition.y * scaleFactor,
+      scaledBuddyWidth,
+      scaledBuddyHeight
+    );
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'combined_image.png';
+    link.click();
   };
-  
-  
 
   return (
     <div>
@@ -200,91 +175,39 @@ const ImageDisplay: React.FC = () => {
       </div>
 
       <div style={{ marginTop: '10px' }}>
-        <button
-          onClick={() => handleMove('up')}
-          style={{
-            fontSize: '20px',
-            margin: '5px',
-            padding: '5px',
-            fontFamily: 'Courier Black, monospace',
-          }}
-        >
-          <FaArrowUp />
-        </button>
-        <button
-          onClick={() => handleMove('down')}
-          style={{
-            fontSize: '20px',
-            margin: '5px',
-            padding: '5px',
-            fontFamily: 'Courier Black, monospace',
-          }}
-        >
-          <FaArrowDown />
-        </button>
-        <button
-          onClick={() => handleMove('left')}
-          style={{
-            fontSize: '20px',
-            margin: '5px',
-            padding: '5px',
-            fontFamily: 'Courier Black, monospace',
-          }}
-        >
-          <FaArrowLeft />
-        </button>
-        <button
-          onClick={() => handleMove('right')}
-          style={{
-            fontSize: '20px',
-            margin: '5px',
-            padding: '5px',
-            fontFamily: 'Courier Black, monospace',
-          }}
-        >
-          <FaArrowRight />
-        </button>
-        <button
-          onClick={() => handleSizeChange(true)}
-          style={{
-            fontSize: '20px',
-            margin: '5px',
-            padding: '5px',
-            fontFamily: 'Courier Black, monospace',
-          }}
-        >
-          <FaPlus />
-        </button>
-        <button
-          onClick={() => handleSizeChange(false)}
-          style={{
-            fontSize: '20px',
-            margin: '5px',
-            padding: '5px',
-            fontFamily: 'Courier Black, monospace',
-          }}
-        >
-          <FaMinus />
-        </button>
-        <button
-          onClick={handleDownload}
-          style={{
-            fontSize: '20px',
-            marginTop: '20px',
-            padding: '10px 20px',
-            backgroundColor: 'red',
-            color: 'white',
-            borderRadius: '5px',
-            fontFamily: 'Courier Black, monospace',
-          }}
-        >
+        <select onChange={handleBuddyImageChange} value={selectedBuddyImage}>
+          {buddyImages.map((image, index) => (
+            <option key={index} value={index}>
+              Buddy Image {index + 1}
+            </option>
+          ))}
+        </select>
+
+        <button onClick={() => handleMove('up')} style={buttonStyle}><FaArrowUp /></button>
+        <button onClick={() => handleMove('down')} style={buttonStyle}><FaArrowDown /></button>
+        <button onClick={() => handleMove('left')} style={buttonStyle}><FaArrowLeft /></button>
+        <button onClick={() => handleMove('right')} style={buttonStyle}><FaArrowRight /></button>
+        <button onClick={() => handleSizeChange(true)} style={buttonStyle}><FaPlus /></button>
+        <button onClick={() => handleSizeChange(false)} style={buttonStyle}><FaMinus /></button>
+
+        <button onClick={handleDownload} style={downloadButtonStyle}>
           Download Image
         </button>
       </div>
-
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
     </div>
   );
+};
+
+const buttonStyle = { margin: '5px', padding: '10px' };
+const downloadButtonStyle = {
+  width: '100px',
+  height: '35px',
+  borderRadius: '15px',
+  backgroundColor: 'red',
+  color: 'white',
+  border: 'none',
+  cursor: 'pointer',
 };
 
 export default ImageDisplay;
