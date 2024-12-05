@@ -7,7 +7,7 @@ const ImageDisplay: React.FC = () => {
   const [buddyPosition, setBuddyPosition] = useState({ x: 0, y: 0 });
   const [buddySize, setBuddySize] = useState({ width: 180, height: 180 });
   const [dragging, setDragging] = useState(false);
-  const [buddyImageSrc, setBuddyImageSrc] = useState('/y00trebuilder/1.png');
+  const [buddyImageSrc, setBuddyImageSrc] = useState('/images/1.png');
   const [selectedBuddyImage, setSelectedBuddyImage] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
