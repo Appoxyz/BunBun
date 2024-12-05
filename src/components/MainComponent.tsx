@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight, FaPlus, FaMinus } from 'react-icons/fa';
 
@@ -8,7 +8,7 @@ const ImageDisplay: React.FC = () => {
   const [buddySize, setBuddySize] = useState({ width: 180, height: 180 });
   const [dragging, setDragging] = useState(false);
   const [buddyImageSrc, setBuddyImageSrc] = useState('/images/1.png');
-  const [selectedBuddyImage, setSelectedBuddyImage] = useState(0);
+  const [selectedBuddyImage, setSelectedBuddyImage] = useState(0); // Track selected buddy image
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buddyRef = useRef<HTMLDivElement | null>(null);
@@ -22,12 +22,6 @@ const ImageDisplay: React.FC = () => {
     '/images/5.png',
     '/images/6.png',
   ];
-
-  const handleBuddyImageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedIndex = parseInt(event.target.value);
-    setSelectedBuddyImage(selectedIndex);
-    setBuddyImageSrc(buddyImages[selectedIndex]);
-  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -163,28 +157,27 @@ const ImageDisplay: React.FC = () => {
             borderRadius: '8px',
           }}
         />
-        <select
-          onChange={handleBuddyImageChange}
-          value={selectedBuddyImage}
-          style={{
-            fontFamily: 'inherit',
-            fontSize: '16px',
-            padding: '10px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            background: '#1c1c1c',
-            color: 'white',
-            cursor: 'pointer',
-          }}
-        >
-          {buddyImages.map((image, index) => (
-            <option key={index} value={index}>
-              {index + 1}
-            </option>
-          ))}
-        </select>
       </div>
 
+      {/* Buddy Image Preview Buttons */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        {buddyImages.map((image, index) => (
+          <button
+            key={index}
+            onClick={() => { setBuddyImageSrc(image); setSelectedBuddyImage(index); }}
+            style={{
+              backgroundColor: 'transparent',
+              border: `2px solid ${selectedBuddyImage === index ? 'black' : '#ccc'}`,
+              padding: '3px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'border-color 0.3s',
+            }}
+          >
+            <Image src={image} alt={`Buddy ${index + 1}`} width={40} height={40} />
+          </button>
+        ))}
+      </div>
 
       <div
         ref={containerRef}
