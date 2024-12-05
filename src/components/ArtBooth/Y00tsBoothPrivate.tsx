@@ -4,11 +4,21 @@ import Image from 'next/image';
 const ImageDisplay: React.FC = () => {
   const [userImage, setUserImage] = useState<string | null>(null);
   const [buddyPosition, setBuddyPosition] = useState({ x: 0, y: 0 });
-  const [buddySize, setBuddySize] = useState({ width: 180, height: 180 }); // Add size state
+  const [buddySize, setBuddySize] = useState({ width: 180, height: 180 });
   const [dragging, setDragging] = useState(false);
+  const [buddyImageSrc, setBuddyImageSrc] = useState('/y00trebuilder/123456.png');
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buddyRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const buddyImages = [
+    '/y00trebuilder/1.png',
+    '/y00trebuilder/2.png',
+    '/y00trebuilder/3.png',
+    '/y00trebuilder/4.png',
+    '/y00trebuilder/5.png',
+    '/y00trebuilder/6.png',
+  ];
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -89,7 +99,7 @@ const ImageDisplay: React.FC = () => {
 
     catImage.src = '/y00trebuilder/bg.png';
     userUploadedImage.src = userImage;
-    buddyImage.src = '/y00trebuilder/12345.png';
+    buddyImage.src = buddyImageSrc;
 
     catImage.onload = () => {
       userUploadedImage.onload = () => {
@@ -104,15 +114,17 @@ const ImageDisplay: React.FC = () => {
           context.drawImage(catImage, 0, 0, canvas.width, canvas.height);
           context.drawImage(userUploadedImage, 0, 0, canvas.width, canvas.height);
 
+          const buddyAspectRatio = buddyImage.width / buddyImage.height;
+
           const scaledBuddyWidth = buddySize.width * scaleFactor;
-          const scaledBuddyHeight = buddySize.height * scaleFactor;
+          const scaledBuddyHeight = scaledBuddyWidth / buddyAspectRatio;
 
           context.drawImage(
             buddyImage,
             buddyPosition.x * scaleFactor,
             buddyPosition.y * scaleFactor,
             scaledBuddyWidth,
-            scaledBuddyHeight,
+            scaledBuddyHeight
           );
 
           const dataUrl = canvas.toDataURL('image/png');
@@ -129,7 +141,7 @@ const ImageDisplay: React.FC = () => {
     <div>
       <h2>Upload Your Image</h2>
       <input type="file" accept="image/*" onChange={handleImageUpload} />
-      
+
       <div
         ref={containerRef}
         style={{ position: 'relative', width: '400px', height: '400px', overflow: 'hidden' }}
@@ -149,7 +161,7 @@ const ImageDisplay: React.FC = () => {
           }}
           onMouseDown={handleMouseDown}
         >
-          <Image src="/y00trebuilder/12345.png" alt="Buddy" width={buddySize.width} height={buddySize.height} />
+          <Image src={buddyImageSrc} alt="Buddy" width={buddySize.width} height={buddySize.height} />
         </div>
       </div>
 
@@ -160,6 +172,18 @@ const ImageDisplay: React.FC = () => {
         <button onClick={() => handleMove('right')}>Right</button>
         <button onClick={() => handleSizeChange(true)}>Bigger</button>
         <button onClick={() => handleSizeChange(false)}>Smaller</button>
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        {buddyImages.map((src, index) => (
+          <button
+            key={index}
+            onClick={() => setBuddyImageSrc(src)}
+            style={{ margin: '5px' }}
+          >
+            Option {index + 1}
+          </button>
+        ))}
       </div>
 
       <button onClick={handleDownload} style={{ marginTop: '20px' }}>
