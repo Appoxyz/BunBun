@@ -151,9 +151,40 @@ const ImageDisplay: React.FC = () => {
 
       {/* Middle Text and Upload */}
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <h2>Upload Your Image</h2>
-        <input type="file" accept="image/*" onChange={handleImageUpload} style={{ fontFamily: 'inherit' }} />
-      </div>
+  <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>Upload Your Image</h2>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handleImageUpload}
+    style={{
+      fontFamily: 'inherit',
+      fontSize: '16px',
+      padding: '10px',
+      borderRadius: '8px',
+    }}
+  />
+  <select
+    onChange={handleBuddyImageChange}
+    value={selectedBuddyImage}
+    style={{
+      fontFamily: 'inherit',
+      fontSize: '16px',
+      padding: '10px',
+      borderRadius: '8px',
+      border: '1px solid #ccc',
+      background: '#1c1c1c',
+      color: 'white',
+      cursor: 'pointer',
+    }}
+  >
+    {buddyImages.map((image, index) => (
+      <option key={index} value={index}>
+        {index + 1}
+      </option>
+    ))}
+  </select>
+</div>
+
 
       <div
         ref={containerRef}
@@ -187,25 +218,6 @@ const ImageDisplay: React.FC = () => {
 
       {/* Controls Section */}
       <div style={{ textAlign: 'center' }}>
-        <select
-          onChange={handleBuddyImageChange}
-          value={selectedBuddyImage}
-          style={{
-            fontFamily: 'inherit',
-            padding: '10px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            background: '#f9f9f9',
-            cursor: 'pointer',
-            marginBottom: '10px',
-          }}
-        >
-          {buddyImages.map((image, index) => (
-            <option key={index} value={index}>
-              Buddy Image {index + 1}
-            </option>
-          ))}
-        </select>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', margin: '10px 0' }}>
           <button onClick={() => handleMove('up')} style={buttonStyle}><FaArrowUp /></button>
@@ -229,20 +241,18 @@ const ImageDisplay: React.FC = () => {
 const buttonStyle = {
   padding: '10px',
   borderRadius: '8px',
-  border: '1px solid #ccc',
-  backgroundColor: '#4CAF50',
+  backgroundColor: '#1c1c1c',
   color: 'white',
   fontSize: '14px',
   cursor: 'pointer',
 };
 
 const downloadButtonStyle = {
-  width: '120px',
+  width: '200px',
   height: '40px',
   borderRadius: '8px',
-  backgroundColor: '#ff5722',
+  backgroundColor: '#1c1c1c',
   color: 'white',
-  border: 'none',
   cursor: 'pointer',
   fontSize: '16px',
 };
