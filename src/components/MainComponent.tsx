@@ -163,9 +163,13 @@ const ImageDisplay: React.FC = () => {
       context.strokeStyle = 'black';  // Black border for text
       context.lineWidth = 5 * scaleFactor;  // Scale the border thickness
 
+      // Calculate the text width and position to center it
+      const textWidth = context.measureText(userText.toUpperCase()).width;
+      const xPos = (canvas.width - textWidth) / 2;  // Center the text horizontally
+
       // Apply stroke and fill with uppercase user text
-      context.strokeText(userText.toUpperCase(), 20 * scaleFactor, 40 * scaleFactor);  // Stroke with scaled position
-      context.fillText(userText.toUpperCase(), 20 * scaleFactor, 40 * scaleFactor);    // Fill with white color
+      context.strokeText(userText.toUpperCase(), xPos, 40 * scaleFactor);  // Stroke with scaled position
+      context.fillText(userText.toUpperCase(), xPos, 40 * scaleFactor);    // Fill with white color
     }
 
     // Create a data URL for the image to trigger a download
@@ -311,8 +315,9 @@ const ImageDisplay: React.FC = () => {
             <div
               style={{
                 position: 'absolute',
-                top: '20px',
-                left: '20px',
+                top: '20px', // Position text at the top of the container
+                left: '50%', // Horizontally center the text
+                transform: 'translateX(-50%)', // Offset the text by 50% of its own width to center it
                 fontSize: '30px', // Use base size for on-screen display
                 fontWeight: 'bold',
                 color: 'white',
@@ -324,6 +329,7 @@ const ImageDisplay: React.FC = () => {
               {userText.toUpperCase()} {/* Display the text in uppercase */}
             </div>
           )}
+
         </div>
 
         {/* Controls Section */}
