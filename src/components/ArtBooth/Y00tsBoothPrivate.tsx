@@ -147,13 +147,24 @@ const ImageDisplay: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2 style={{ fontFamily: 'Courier Black, monospace' }}>Upload Your Image</h2>
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', fontFamily: 'Courier Black, monospace' }}>
+
+      {/* Middle Text and Upload */}
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h2>Upload Your Image</h2>
+        <input type="file" accept="image/*" onChange={handleImageUpload} style={{ fontFamily: 'inherit' }} />
+      </div>
 
       <div
         ref={containerRef}
-        style={{ position: 'relative', width: '400px', height: '400px', overflow: 'hidden' }}
+        style={{
+          position: 'relative',
+          width: '400px',
+          height: '400px',
+          overflow: 'hidden',
+          border: '5px solid black', // Black border around cat image
+          marginBottom: '20px', // Adds space between the image container and controls
+        }}
       >
         <Image src="/y00trebuilder/bg.png" alt="Cat" layout="fill" objectFit="cover" priority />
         {userImage && <Image src={userImage} alt="Uploaded" layout="fill" objectFit="contain" style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} />}
@@ -174,8 +185,21 @@ const ImageDisplay: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ marginTop: '10px' }}>
-        <select onChange={handleBuddyImageChange} value={selectedBuddyImage}>
+      {/* Controls Section */}
+      <div style={{ textAlign: 'center' }}>
+        <select
+          onChange={handleBuddyImageChange}
+          value={selectedBuddyImage}
+          style={{
+            fontFamily: 'inherit',
+            padding: '10px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            background: '#f9f9f9',
+            cursor: 'pointer',
+            marginBottom: '10px',
+          }}
+        >
           {buddyImages.map((image, index) => (
             <option key={index} value={index}>
               Buddy Image {index + 1}
@@ -183,31 +207,44 @@ const ImageDisplay: React.FC = () => {
           ))}
         </select>
 
-        <button onClick={() => handleMove('up')} style={buttonStyle}><FaArrowUp /></button>
-        <button onClick={() => handleMove('down')} style={buttonStyle}><FaArrowDown /></button>
-        <button onClick={() => handleMove('left')} style={buttonStyle}><FaArrowLeft /></button>
-        <button onClick={() => handleMove('right')} style={buttonStyle}><FaArrowRight /></button>
-        <button onClick={() => handleSizeChange(true)} style={buttonStyle}><FaPlus /></button>
-        <button onClick={() => handleSizeChange(false)} style={buttonStyle}><FaMinus /></button>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', margin: '10px 0' }}>
+          <button onClick={() => handleMove('up')} style={buttonStyle}><FaArrowUp /></button>
+          <button onClick={() => handleMove('down')} style={buttonStyle}><FaArrowDown /></button>
+          <button onClick={() => handleMove('left')} style={buttonStyle}><FaArrowLeft /></button>
+          <button onClick={() => handleMove('right')} style={buttonStyle}><FaArrowRight /></button>
+          <button onClick={() => handleSizeChange(true)} style={buttonStyle}><FaPlus /></button>
+          <button onClick={() => handleSizeChange(false)} style={buttonStyle}><FaMinus /></button>
+        </div>
 
         <button onClick={handleDownload} style={downloadButtonStyle}>
           Download Image
         </button>
       </div>
+      
       <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
     </div>
   );
 };
 
-const buttonStyle = { margin: '5px', padding: '10px' };
+const buttonStyle = {
+  padding: '10px',
+  borderRadius: '8px',
+  border: '1px solid #ccc',
+  backgroundColor: '#4CAF50',
+  color: 'white',
+  fontSize: '14px',
+  cursor: 'pointer',
+};
+
 const downloadButtonStyle = {
-  width: '100px',
-  height: '35px',
-  borderRadius: '15px',
-  backgroundColor: 'red',
+  width: '120px',
+  height: '40px',
+  borderRadius: '8px',
+  backgroundColor: '#ff5722',
   color: 'white',
   border: 'none',
   cursor: 'pointer',
+  fontSize: '16px',
 };
 
 export default ImageDisplay;

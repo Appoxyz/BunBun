@@ -3,7 +3,6 @@ import ImageDisplay from "@/components/ArtBooth/Y00tsBoothPrivate";
 export default function Home() {
     return (
         <main className="flex min-h-screen w-full flex-col items-center justify-center non-scrollable">
-            <h1>Image Display Example</h1>
             <ImageDisplay />
 
             <style jsx>{`
