@@ -191,10 +191,14 @@ const ImageDisplay: React.FC = () => {
         paddingLeft: '10px',
         width: isMobile ? '100%' : '30%', // Adjust width based on screen size
       }}>
-        <h3>Step 1: Choose File</h3>
-        <h3>Step 2: Select One</h3>
-        <h3>Step 3: Move Around</h3>
-        <h3>Step 4: Add Text</h3>
+        <h3>Step 1</h3>
+        <h3>Choose File</h3>
+        <h3>Step 2</h3>
+        <h3>Select One</h3>
+        <h3>Step 3</h3>
+        <h3>Move Around</h3>
+        <h3>Step 4</h3>
+        <h3>Add Text</h3>
       </div>
 
 
