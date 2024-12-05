@@ -48,12 +48,12 @@
 
 .text-9xl {
   font-size: 14rem;
-  font-family: 'D2', sans-serif;
+  font-family: 'Courier Black', sans-serif;
 }
 
 .text-8xl {
   font-size: 3rem;
-  font-family: 'D2', sans-serif;
+  font-family: 'Courier Black', sans-serif;
 }
 
 .text-7xl {
@@ -98,7 +98,7 @@
 
 .text-base {
   font-size: 1rem;
-  font-family: 'D5', sans-serif;
+  font-family: 'Courier Black', sans-serif;
 }
 
 .text-sm {

@@ -1,9 +1,8 @@
 import Link from "next/link";
-import Y00tsBoothForbes from "@/components/ArtBooth/Y00tsBoothForbes";
 
 export default function Home() {
   return (
-    <main className={`flex min-h-screen w-full flex-col items-center justify-center pt-8`}>
+    <main className={`flex min-h-screen w-full flex-col items-center justify-center pt-8`} style={{ fontFamily: 'Courier Black, monospace' }}>
       <div className="container flex w-full flex-col items-center py-2" style={{ zIndex: 2 }}>
         <h1 className="text-9xl text-slate mt-4">404</h1>
         <p className="text-8xl text-slate mt-4">something went wrong</p>
