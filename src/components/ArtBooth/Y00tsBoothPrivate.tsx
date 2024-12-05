@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
+import { FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight, FaPlus, FaMinus } from 'react-icons/fa'; // Importing react-icons
 
 const ImageDisplay: React.FC = () => {
   const [userImage, setUserImage] = useState<string | null>(null);
@@ -139,7 +140,7 @@ const ImageDisplay: React.FC = () => {
 
   return (
     <div>
-      <h2>Upload Your Image</h2>
+      <h2 style={{ fontFamily: 'Courier Black, monospace' }}>Upload Your Image</h2>
       <input type="file" accept="image/*" onChange={handleImageUpload} />
 
       <div
@@ -166,12 +167,72 @@ const ImageDisplay: React.FC = () => {
       </div>
 
       <div style={{ marginTop: '10px' }}>
-        <button onClick={() => handleMove('up')}>Up</button>
-        <button onClick={() => handleMove('down')}>Down</button>
-        <button onClick={() => handleMove('left')}>Left</button>
-        <button onClick={() => handleMove('right')}>Right</button>
-        <button onClick={() => handleSizeChange(true)}>Bigger</button>
-        <button onClick={() => handleSizeChange(false)}>Smaller</button>
+        <button
+          onClick={() => handleMove('up')}
+          style={{
+            fontSize: '20px',
+            margin: '5px',
+            padding: '5px',
+            fontFamily: 'Courier Black, monospace',
+          }}
+        >
+          <FaArrowUp />
+        </button>
+        <button
+          onClick={() => handleMove('down')}
+          style={{
+            fontSize: '20px',
+            margin: '5px',
+            padding: '5px',
+            fontFamily: 'Courier Black, monospace',
+          }}
+        >
+          <FaArrowDown />
+        </button>
+        <button
+          onClick={() => handleMove('left')}
+          style={{
+            fontSize: '20px',
+            margin: '5px',
+            padding: '5px',
+            fontFamily: 'Courier Black, monospace',
+          }}
+        >
+          <FaArrowLeft />
+        </button>
+        <button
+          onClick={() => handleMove('right')}
+          style={{
+            fontSize: '20px',
+            margin: '5px',
+            padding: '5px',
+            fontFamily: 'Courier Black, monospace',
+          }}
+        >
+          <FaArrowRight />
+        </button>
+        <button
+          onClick={() => handleSizeChange(true)}
+          style={{
+            fontSize: '24px',
+            margin: '10px',
+            padding: '10px',
+            fontFamily: 'Courier Black, monospace',
+          }}
+        >
+          <FaPlus />
+        </button>
+        <button
+          onClick={() => handleSizeChange(false)}
+          style={{
+            fontSize: '24px',
+            margin: '10px',
+            padding: '10px',
+            fontFamily: 'Courier Black, monospace',
+          }}
+        >
+          <FaMinus />
+        </button>
       </div>
 
       <div style={{ marginTop: '20px' }}>
@@ -179,18 +240,31 @@ const ImageDisplay: React.FC = () => {
           <button
             key={index}
             onClick={() => setBuddyImageSrc(src)}
-            style={{ margin: '5px' }}
+            style={{
+              padding: '5px',
+              margin: '5px',
+              fontFamily: 'Courier Black, monospace',
+            }}
           >
-            Option {index + 1}
+            Image {index + 1}
           </button>
         ))}
       </div>
 
-      <button onClick={handleDownload} style={{ marginTop: '20px' }}>
-        Download Combined Image
+      <button
+        onClick={handleDownload}
+        style={{
+          fontSize: '16px',
+          padding: '10px 20px',
+          backgroundColor: 'red',
+          color: 'white',
+          borderRadius: '10px',
+          cursor: 'pointer',
+          fontFamily: 'Courier Black, monospace',
+        }}
+      >
+        Download
       </button>
-
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   );
 };
