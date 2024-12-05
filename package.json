@@ -16,7 +16,8 @@
     "merge-images": "^2.0.0",
     "next": "^14.0.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-icons": "^5.4.0"
   },
   "devDependencies": {
     "@types/merge-images": "^1.2.4",
