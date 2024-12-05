@@ -114,4 +114,42 @@
 .text-xsm {
   font-size: 0.62rem;
   font-family: 'D2', sans-serif;
+
+}
+
+/* Default styles for larger screens */
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  /* Align steps text at the top on larger screens */
+  justify-content: flex-start;
+  /* Align items at the start horizontally */
+  padding: 20px;
+  font-family: 'Courier Black', monospace;
+  width: 100%;
+}
+
+/* Media query for small screens (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    /* Stack vertically on smaller screens */
+    align-items: center;
+    /* Center items horizontally on smaller screens */
+    justify-content: flex-start;
+    /* Align items at the top */
+  }
+
+  /* Ensuring the steps container takes full height on small screens */
+  .steps-container {
+    height: 100vh;
+    /* Full height for centering */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Vertically center on mobile */
+    align-items: center;
+    /* Center text horizontally */
+  }
 }
