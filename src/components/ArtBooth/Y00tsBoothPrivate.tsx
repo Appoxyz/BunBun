@@ -12,6 +12,8 @@ const ImageDisplay: React.FC = () => {
   const buddyRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  
+
   const buddyImages = [
     '/y00trebuilder/1.png',
     '/y00trebuilder/2.png',
@@ -87,56 +89,87 @@ const ImageDisplay: React.FC = () => {
     });
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!canvasRef.current || !userImage || !containerRef.current) return;
-
+  
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     if (!context) return;
-
+  
+    // Create image objects using the standard HTMLImageElement constructor
     const catImage = new window.Image();
     const userUploadedImage = new window.Image();
     const buddyImage = new window.Image();
-
+  
+    // Set the image sources
     catImage.src = '/y00trebuilder/bg.png';
     userUploadedImage.src = userImage;
     buddyImage.src = buddyImageSrc;
-
-    catImage.onload = () => {
-      userUploadedImage.onload = () => {
-        buddyImage.onload = () => {
-          const scaleFactor = 5;
-          const containerWidth = containerRef.current?.offsetWidth ?? 0;
-          const containerHeight = containerRef.current?.offsetHeight ?? 0;
-
-          canvas.width = containerWidth * scaleFactor;
-          canvas.height = containerHeight * scaleFactor;
-
-          context.drawImage(catImage, 0, 0, canvas.width, canvas.height);
-          context.drawImage(userUploadedImage, 0, 0, canvas.width, canvas.height);
-
-          const buddyAspectRatio = buddyImage.width / buddyImage.height;
-
-          const scaledBuddyWidth = buddySize.width * scaleFactor;
-          const scaledBuddyHeight = scaledBuddyWidth / buddyAspectRatio;
-
-          context.drawImage(
-            buddyImage,
-            buddyPosition.x * scaleFactor,
-            buddyPosition.y * scaleFactor,
-            scaledBuddyWidth,
-            scaledBuddyHeight
-          );
-
-          const dataUrl = canvas.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = dataUrl;
-          link.download = 'combined_image.png';
-          link.click();
+  
+    // Wait until all images are loaded before drawing on the canvas
+    const loadImages = () => {
+      return new Promise<void>((resolve, reject) => {
+        let loadedCount = 0;
+        const totalImages = 3;
+  
+        const onLoad = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            resolve();
+          }
         };
-      };
+  
+        catImage.onload = onLoad;
+        userUploadedImage.onload = onLoad;
+        buddyImage.onload = onLoad;
+  
+        // Handle image loading errors
+        catImage.onerror = reject;
+        userUploadedImage.onerror = reject;
+        buddyImage.onerror = reject;
+      });
     };
+  
+    try {
+      await loadImages();
+  
+      const scaleFactor = 5;
+      const containerWidth = containerRef.current?.offsetWidth ?? 0;
+      const containerHeight = containerRef.current?.offsetHeight ?? 0;
+  
+      canvas.width = containerWidth * scaleFactor;
+      canvas.height = containerHeight * scaleFactor;
+  
+      // Draw the background image
+      context.drawImage(catImage, 0, 0, canvas.width, canvas.height);
+      context.drawImage(userUploadedImage, 0, 0, canvas.width, canvas.height);
+  
+      // Calculate buddy image scale
+      const buddyAspectRatio = buddyImage.width / buddyImage.height;
+      const scaledBuddyWidth = buddySize.width * scaleFactor;
+      const scaledBuddyHeight = scaledBuddyWidth / buddyAspectRatio;
+  
+      // Draw the buddy image while maintaining the aspect ratio
+      context.drawImage(
+        buddyImage,
+        buddyPosition.x * scaleFactor,
+        buddyPosition.y * scaleFactor,
+        scaledBuddyWidth,
+        scaledBuddyHeight
+      );
+  
+      // Generate the data URL and trigger the download
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'combined_image.png';
+      link.click();
+    } catch (error) {
+      console.error('Error loading images:', error);
+    }
   };
+  
+  
 
   return (
     <div>
@@ -214,9 +247,9 @@ const ImageDisplay: React.FC = () => {
         <button
           onClick={() => handleSizeChange(true)}
           style={{
-            fontSize: '24px',
-            margin: '10px',
-            padding: '10px',
+            fontSize: '20px',
+            margin: '5px',
+            padding: '5px',
             fontFamily: 'Courier Black, monospace',
           }}
         >
@@ -225,46 +258,31 @@ const ImageDisplay: React.FC = () => {
         <button
           onClick={() => handleSizeChange(false)}
           style={{
-            fontSize: '24px',
-            margin: '10px',
-            padding: '10px',
+            fontSize: '20px',
+            margin: '5px',
+            padding: '5px',
             fontFamily: 'Courier Black, monospace',
           }}
         >
           <FaMinus />
         </button>
+        <button
+          onClick={handleDownload}
+          style={{
+            fontSize: '20px',
+            marginTop: '20px',
+            padding: '10px 20px',
+            backgroundColor: 'red',
+            color: 'white',
+            borderRadius: '5px',
+            fontFamily: 'Courier Black, monospace',
+          }}
+        >
+          Download Image
+        </button>
       </div>
 
-      <div style={{ marginTop: '20px' }}>
-        {buddyImages.map((src, index) => (
-          <button
-            key={index}
-            onClick={() => setBuddyImageSrc(src)}
-            style={{
-              padding: '5px',
-              margin: '5px',
-              fontFamily: 'Courier Black, monospace',
-            }}
-          >
-            Image {index + 1}
-          </button>
-        ))}
-      </div>
-
-      <button
-        onClick={handleDownload}
-        style={{
-          fontSize: '16px',
-          padding: '10px 20px',
-          backgroundColor: 'red',
-          color: 'white',
-          borderRadius: '10px',
-          cursor: 'pointer',
-          fontFamily: 'Courier Black, monospace',
-        }}
-      >
-        Download
-      </button>
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   );
 };
