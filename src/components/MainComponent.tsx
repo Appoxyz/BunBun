@@ -151,7 +151,7 @@ const ImageDisplay: React.FC = () => {
 
       {/* Middle Text and Upload */}
       <div style={{ textAlign: 'center', marginBottom: '5px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>Upload Your Image</h2>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>Generator</h2>
         <input
           type="file"
           accept="image/*"
@@ -230,7 +230,7 @@ const ImageDisplay: React.FC = () => {
         </div>
 
         <button onClick={handleDownload} style={downloadButtonStyle}>
-          Download Image
+          Download
         </button>
       </div>
 
