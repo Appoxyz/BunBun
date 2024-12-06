@@ -182,36 +182,11 @@ const ImageDisplay: React.FC = () => {
 
   return (
     <div className="container">
-
-      {/* Text Instructions */}
-      <div style={{
-        marginRight: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center', // Center vertically within its own container
-        alignItems: 'center', // Center horizontally
-        height: isMobile ? '10%' : '100vh', // Set height to 10% on mobile, full viewport height on desktop
-        paddingRight: '10px',
-        paddingLeft: '10px',
-        width: isMobile ? '100%' : '30%', // Adjust width based on screen size
-      }}>
-        <h3>Step 1</h3>
-        <h3>Choose File</h3>
-        <h3>Step 2</h3>
-        <h3>Select One</h3>
-        <h3>Step 3</h3>
-        <h3>Move Around</h3>
-        <h3>Step 4</h3>
-        <h3>Add Text</h3>
-      </div>
-
-
       {/* Content Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-
-        {/* Content Section */}
-        <div style={{ textAlign: 'center', marginBottom: '5px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>Generator</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        {/* Step 1 - File Upload */}
+        <div className="upload-container" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <h3 className="step-text">Step 1</h3>
           <input
             type="file"
             accept="image/*"
@@ -221,49 +196,82 @@ const ImageDisplay: React.FC = () => {
               fontSize: '16px',
               padding: '10px',
               borderRadius: '8px',
+              width: '80%',  // Set the width to 20%
             }}
           />
         </div>
 
-        {/* Buddy Image Preview Buttons */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-          {buddyImages.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => { setBuddyImageSrc(image); setSelectedBuddyImage(index); }}
-              style={{
-                backgroundColor: 'transparent',
-                border: `2px solid ${selectedBuddyImage === index ? 'black' : '#ccc'}`,
-                padding: '3px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'border-color 0.3s',
-              }}
-            >
-              <Image src={image} alt={`Buddy ${index + 1}`} width={40} height={40} />
-            </button>
-          ))}
+        {/* Step 2 - File Upload */}
+        <div className="upload-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h3 className="step-text">Step 2</h3>
+          <div style={{ display: 'flex', gap: '5px', marginBottom: '20px' }}>
+            {buddyImages.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => { setBuddyImageSrc(image); setSelectedBuddyImage(index); }}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: `2px solid ${selectedBuddyImage === index ? 'black' : '#ccc'}`,
+                  padding: '3px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.3s',
+                }}
+              >
+                <Image src={image} alt={`Buddy ${index + 1}`} width={30} height={30} />
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* User Text Input */}
-        <div style={{ marginBottom: '20px' }}>
+        {/* Step 3 - File Upload */}
+        <div className="upload-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h3 className="step-text">Step 3</h3>
           <input
             type="text"
             value={userText}
             onChange={(e) => setUserText(e.target.value)}
             placeholder="Enter text to display"
+            className="custom-placeholder"
             style={{
               padding: '10px',
               fontSize: '16px',
               backgroundColor: 'transparent',
-              border: '1.3px solid black', // Adds a black border with 5px thickness
-              borderRadius: '5px', // Sets border radius to 5px
-              width: '350px',
-              textTransform: 'uppercase', // Ensures all text input is in uppercase
+              border: '1.3px solid black',
+              borderRadius: '5px',
+              width: '265px',
+              textTransform: 'uppercase',
+              color: "black",
             }}
-
           />
+
         </div>
+
+        {/* Step 4 - File Upload */}
+        <div className="upload-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h3 className="step-text">Step 4</h3>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', margin: '10px 0' }}>
+            <button onClick={() => handleMove('up')} style={buttonStyle}><FaArrowUp /></button>
+            <button onClick={() => handleMove('down')} style={buttonStyle}><FaArrowDown /></button>
+            <button onClick={() => handleMove('left')} style={buttonStyle}><FaArrowLeft /></button>
+            <button onClick={() => handleMove('right')} style={buttonStyle}><FaArrowRight /></button>
+            <button onClick={() => handleSizeChange(true)} style={buttonStyle}><FaPlus /></button>
+            <button onClick={() => handleSizeChange(false)} style={buttonStyle}><FaMinus /></button>
+          </div>
+        </div>
+
+        <div
+          style={{
+            fontSize: '18px', // Font size for the "Preview" label
+            fontWeight: 'bold',
+            color: 'black', // Text color
+            marginLeft: '10px', // Add some space from the left
+            marginBottom: '10px', // Optional: space below the text
+          }}
+        >
+          Preview
+        </div>
+
 
         <div
           ref={containerRef}
@@ -333,21 +341,13 @@ const ImageDisplay: React.FC = () => {
         </div>
 
         {/* Controls Section */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', margin: '10px 0' }}>
-            <button onClick={() => handleMove('up')} style={buttonStyle}><FaArrowUp /></button>
-            <button onClick={() => handleMove('down')} style={buttonStyle}><FaArrowDown /></button>
-            <button onClick={() => handleMove('left')} style={buttonStyle}><FaArrowLeft /></button>
-            <button onClick={() => handleMove('right')} style={buttonStyle}><FaArrowRight /></button>
-            <button onClick={() => handleSizeChange(true)} style={buttonStyle}><FaPlus /></button>
-            <button onClick={() => handleSizeChange(false)} style={buttonStyle}><FaMinus /></button>
-          </div>
-
+        <div style={{ textAlign: 'center', paddingTop: '20px' }}>
           {/* Download Button */}
           <button onClick={handleDownload} style={downloadButtonStyle}>
             Download
           </button>
         </div>
+
 
         <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
       </div>
