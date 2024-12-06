@@ -15,6 +15,8 @@ const ImageDisplay: React.FC = () => {
   const buddyRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+
+
   // State to manage the width of the div
   const [isMobile, setIsMobile] = useState(false);
 
@@ -184,6 +186,11 @@ const ImageDisplay: React.FC = () => {
     <div className="container">
       {/* Content Section */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <div style={{ paddingTop: isMobile ? '5px' : '100px' }}>
+          <h1 style={{ textAlign: 'center', fontSize: '36px', color: '#333' }}>Meme Generator</h1>
+        </div>
+
+
         {/* Step 1 - File Upload */}
         <div className="upload-container" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <h3 className="step-text">Step 1</h3>
