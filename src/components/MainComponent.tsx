@@ -39,6 +39,8 @@ const ImageDisplay: React.FC = () => {
     '/images/4.png',
     '/images/5.png',
     '/images/6.png',
+    '/images/5.png',
+    '/images/7.png',
   ];
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,7 +227,7 @@ const ImageDisplay: React.FC = () => {
                   transition: 'border-color 0.3s',
                 }}
               >
-                <Image src={image} alt={`Buddy ${index + 1}`} width={30} height={30} />
+                <Image src={image} alt={`Buddy ${index + 1}`} width={25} height={25} />
               </button>
             ))}
           </div>
